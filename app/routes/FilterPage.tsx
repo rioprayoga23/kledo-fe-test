@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ChangeEvent, ReactNode, SelectHTMLAttributes } from "react";
 import { useSearchParams } from "react-router";
-import type { Route } from "./+types/home";
+import type { Route } from "./+types/FilterPage";
 
 type Province = {
   id: number | string;
@@ -296,7 +296,7 @@ const Icons = {
   ),
 };
 
-const Home = ({ loaderData }: Route.ComponentProps) => {
+export default function FilterPage({ loaderData }: Route.ComponentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const {
@@ -545,6 +545,4 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
       </main>
     </div>
   );
-};
-
-export default Home;
+}
