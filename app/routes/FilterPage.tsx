@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ChangeEvent, ReactNode, SelectHTMLAttributes } from "react";
+import type { ShouldRevalidateFunctionArgs } from "react-router";
 import { useSearchParams } from "react-router";
 import type { Route } from "./+types/FilterPage";
 
@@ -69,6 +70,21 @@ export const clientLoader = async (): Promise<LoaderData> => {
   }
 
   return (await response.json()) as LoaderData;
+};
+
+export const shouldRevalidate = ({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) => {
+  if (
+    currentUrl.pathname === nextUrl.pathname &&
+    currentUrl.search !== nextUrl.search
+  ) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
 };
 
 const toId = (value: number | string) => String(value);
