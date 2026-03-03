@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ChangeEvent, ReactNode, SelectHTMLAttributes } from "react";
 import { useSearchParams } from "react-router";
 import type { Route } from "./+types/home";
@@ -99,10 +100,10 @@ const SelectField = ({
   const fieldId = id ?? name;
 
   return (
-    <div className={`mb-4 flex flex-col ${className}`.trim()}>
+    <div className={`mb-6 flex flex-col ${className}`.trim()}>
       <label
         htmlFor={fieldId}
-        className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400"
+        className="mb-2 text-[10px] font-normal uppercase tracking-wide text-slate-400"
       >
         {label}
       </label>
@@ -117,7 +118,7 @@ const SelectField = ({
         <select
           id={fieldId}
           name={name}
-          className={`block w-full cursor-pointer appearance-none rounded-xl border border-slate-300 bg-white py-2.5 pr-10 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${icon ? "pl-9" : "px-3"}`}
+          className={`block w-full cursor-pointer appearance-none rounded-xl border border-black bg-white py-2.5 pr-10 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${icon ? "pl-9" : "px-3"}`}
           {...props}
         >
           {options.map((option, index) => {
@@ -156,12 +157,22 @@ const SelectField = ({
   );
 };
 
-const DisplaySection = ({ label, value }: { label: string; value: string }) => (
+const DisplaySection = ({
+  label,
+  value,
+  valueClassName,
+}: {
+  label: string;
+  value: string;
+  valueClassName: string;
+}) => (
   <div className="flex flex-col items-center text-center">
-    <h3 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#3b82f6] md:text-xs">
+    <h3 className="mb-3 text-[10px] font-normal uppercase tracking-[0.2em] text-[#3b82f6] md:text-xs">
       {label}
     </h3>
-    <h2 className="text-4xl font-extrabold leading-none tracking-tight text-[#1a2533] md:text-5xl lg:text-[56px]">
+    <h2
+      className={`font-semibold leading-none tracking-tight text-[#1a2533] ${valueClassName}`}
+    >
       {value}
     </h2>
   </div>
@@ -171,7 +182,7 @@ const BreadcrumbItem = ({ label, active }: BreadcrumbItemProps) => (
   <>
     <span className="mx-2 text-slate-300">›</span>
     <span
-      className={`tracking-wide ${active ? "text-[#3b82f6]" : "text-slate-400"}`}
+      className={`font-normal tracking-wide ${active ? "text-[#3b82f6]" : "text-slate-400"}`}
     >
       {label}
     </span>
@@ -182,7 +193,7 @@ const Icons = {
   Globe: () => (
     <div className="rounded-full bg-[#eaf1fb] p-1.5 text-[#2c75e3]">
       <svg
-        className="h-5 w-5"
+        className="h-7 w-7"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -286,6 +297,7 @@ const Icons = {
 };
 
 const Home = ({ loaderData }: Route.ComponentProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     provincies: provinces = [],
@@ -379,7 +391,11 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
     },
   ];
 
-  const selectedSections: Array<{ label: string; value: string }> = [];
+  const selectedSections: Array<{
+    label: string;
+    value: string;
+    valueClassName: string;
+  }> = [];
 
   for (const section of ["province", "regency", "district"] as const) {
     switch (section) {
@@ -388,6 +404,7 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
           selectedSections.push({
             label: "Provinsi",
             value: selectedProvince.name,
+            valueClassName: "text-5xl md:text-6xl lg:text-[68px]",
           });
         }
         break;
@@ -396,6 +413,7 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
           selectedSections.push({
             label: "Kota / Kabupaten",
             value: selectedRegency.name,
+            valueClassName: "text-4xl md:text-5xl lg:text-[56px]",
           });
         }
         break;
@@ -404,6 +422,7 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
           selectedSections.push({
             label: "Kecamatan",
             value: selectedDistrict.name,
+            valueClassName: "text-3xl md:text-4xl lg:text-5xl",
           });
         }
         break;
@@ -415,48 +434,70 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
   return (
     <div className="flex min-h-screen w-full flex-col overflow-hidden bg-white font-sans md:flex-row">
       <aside className="sticky top-0 z-20 flex h-auto w-full shrink-0 flex-col border-slate-200 bg-[#f8f9fa] shadow-sm md:relative md:h-screen md:w-[280px] md:border-r md:shadow-none lg:w-[320px]">
-        <div className="p-8">
-          <div className="mb-10 flex w-full items-center gap-4">
-            <Icons.Globe />
-            <h1 className="text-[15px] font-extrabold tracking-tight text-[#1a2533]">
-              Frontend Assessment
-            </h1>
+        <div className="px-4 py-6 md:px-8">
+          <div className="flex w-full items-center justify-between md:mb-10">
+            <div className="flex items-center gap-4">
+              <Icons.Globe />
+              <h1 className="text-[15px] font-semibold tracking-tight text-[#1a2533]">
+                Frontend Assessment
+              </h1>
+            </div>
+
+            <button
+              type="button"
+              aria-label={isOpen ? "Tutup sidebar" : "Buka sidebar"}
+              aria-expanded={isOpen}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:text-slate-700 md:hidden"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <span className="relative h-4 w-5">
+                <span className="absolute left-0 top-0 h-0.5 w-5 origin-center rounded-full bg-current" />
+                <span className="absolute left-0 top-[7px] h-0.5 w-5 rounded-full bg-current" />
+                <span className="absolute left-0 top-[14px] h-0.5 w-5 origin-center rounded-full bg-current" />
+              </span>
+            </button>
           </div>
 
-          <h2 className="mb-6 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Filter Wilayah
-          </h2>
-
-          {selectConfigs.map((config: SelectConfig, index: number) => (
-            <SelectField
-              key={config.id}
-              id={config.id}
-              name={config.name}
-              label={config.label}
-              icon={config.icon}
-              value={config.value}
-              options={config.options}
-              onChange={config.onChange}
-              disabled={config.disabled}
-              className={index === 0 ? "" : "mt-6"}
-            />
-          ))}
-
-          <button
-            type="button"
-            onClick={handleReset}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#3b82f6] text-sm text-black shadow-sm transition-all duration-200 hover:bg-slate-100 md:text-xs p-4 cursor-pointer"
+          <div
+            className={`${isOpen ? "block py-4" : "hidden py-0"} md:block md:py-0`}
           >
-            <span className="flex items-center">
-              <Icons.FilterSlash />
-            </span>
-            RESET
-          </button>
+            <div className="min-h-0">
+              <h2 className="mb-6 mt-4 text-[10px] uppercase tracking-wider text-slate-400 md:mt-0">
+                Filter Wilayah
+              </h2>
+
+              {selectConfigs.map((config: SelectConfig, index: number) => (
+                <SelectField
+                  key={config.id}
+                  id={config.id}
+                  name={config.name}
+                  label={config.label}
+                  icon={config.icon}
+                  value={config.value}
+                  options={config.options}
+                  onChange={config.onChange}
+                  disabled={config.disabled}
+                  className={index === 0 ? "" : "mt-6"}
+                />
+              ))}
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="mt-8 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#3b82f6] p-4 text-sm text-black shadow-sm hover:bg-slate-100 md:text-xs"
+              >
+                <span className="flex items-center">
+                  <Icons.FilterSlash />
+                </span>
+                RESET
+              </button>
+            </div>
+          </div>
         </div>
       </aside>
 
       <main className="relative flex h-auto w-full flex-1 flex-col items-center bg-[#f8f9fa] md:h-screen">
-        <header className="breadcrumb z-10 flex w-full flex-wrap items-center border-b border-slate-200 bg-white p-8 text-xs font-semibold md:absolute md:top-0 md:left-0">
+        <header className="breadcrumb z-10 flex w-full flex-wrap items-center border-b border-slate-200 bg-white p-4 text-xs font-normal md:absolute md:top-0 md:left-0 md:p-8">
           {selectedProvince ? (
             <>
               <span className="text-slate-400">Indonesia</span>
@@ -479,7 +520,7 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
           ) : null}
         </header>
 
-        <div className="mt-8 flex w-full flex-1 flex-col items-center justify-center gap-6 p-6 pb-10 py-20 md:mt-0 md:py-0 lg:gap-8">
+        <div className="flex w-full flex-1 flex-col items-center justify-center gap-6 px-6 py-6 md:px-8 lg:gap-8">
           {selectedSections.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm italic text-slate-400">
               Silakan pilih provinsi terlebih dahulu
@@ -492,7 +533,11 @@ const Home = ({ loaderData }: Route.ComponentProps) => {
                     <Icons.ArrowDown />
                   </div>
                 ) : null}
-                <DisplaySection label={section.label} value={section.value} />
+                <DisplaySection
+                  label={section.label}
+                  value={section.value}
+                  valueClassName={section.valueClassName}
+                />
               </div>
             ))
           )}
